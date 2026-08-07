@@ -1,16 +1,23 @@
 <?php
-// db.php - Production-ready database connection
+$host = 'gateway01.eu-central-1.prod.aws.tidbcloud.com';
+$user = '2BTCsXYJuxUsUkn.root';
+$pass = 'LiWZyAILrVsjB3pw';
+$dbname = 'Bruceoilz'; // or 'sys'
+$port = 4000;
 
-$host = getenv('DB_HOST') ?: 'localhost';
-$user = getenv('DB_USER') ?: 'root';
-$pass = getenv('DB_PASS') ?: '';
-$db   = getenv('DB_NAME') ?: 'bruceoilz';
-
-$conn = @mysqli_connect($host, $user, $pass, $db);
+$conn = mysqli_init();
 
 if (!$conn) {
-    // Log error securely in production rather than displaying raw credentials
-    error_log("Database connection failed: " . mysqli_connect_error());
-    die("Database connection error. Please try again later.");
+    die("mysqli_init failed");
 }
+
+// Enable SSL mode for TiDB Cloud
+$conn->ssl_set(NULL, NULL, NULL, NULL, NULL);
+
+// Connect with SSL flag (MYSQLI_CLIENT_SSL)
+if (!$conn->real_connect($host, $user, $pass, $dbname, $port, NULL, MYSQLI_CLIENT_SSL)) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+echo "Connected successfully to TiDB!";
 ?>
