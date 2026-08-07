@@ -1,19 +1,11 @@
 <?php
-// Display errors for debugging during development
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Include the central TiDB database connection configuration
+require_once 'db.php';
 
-// Database connection
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db   = 'bruceoilz';
-
-$conn = new mysqli($host, $user, $pass, $db);
 $db_products = [];
 
-if (!$conn->connect_error) {
+// Query database if connection is established
+if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
     $result = $conn->query("SELECT * FROM products");
     if ($result && $result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
@@ -271,7 +263,7 @@ $products_to_display = !empty($db_products) ? $db_products : $default_products;
   <!-- PRODUCTS -->
   <div class="products-page">
     <p class="section-label" style="text-align:center;">HANDCRAFTED COLLECTION</p>
-    <h2>All Products</h2>
+    2All Products</h2>
     <p class="section-sub">100% natural herbal oils for your hair, skin, and wellbeing</p>
 
     <?php foreach ($products_to_display as $product): ?>
