@@ -12,7 +12,18 @@ if (empty($_SESSION['cart']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-$conn = @mysqli_connect("localhost", "root", "", "bruceoilz");
+// Database Connection with Fallbacks for Render / Local Environments
+if (file_exists('db.php')) {
+    require_once 'db.php';
+} else {
+    $host = getenv('DB_HOST') ?: getenv('MYSQLHOST') ?: 'localhost';
+    $user = getenv('DB_USER') ?: getenv('MYSQLUSER') ?: 'root';
+    $pass = getenv('DB_PASS') ?: getenv('MYSQLPASSWORD') ?: '';
+    $db   = getenv('DB_NAME') ?: getenv('MYSQLDATABASE') ?: 'bruceoilz';
+    $port = getenv('DB_PORT') ?: getenv('MYSQLPORT') ?: 3306;
+
+    $conn = @mysqli_connect($host, $user, $pass, $db, (int)$port);
+}
 
 // Compute totals from session cart
 $cart_items = $_SESSION['cart'] ?? [];
