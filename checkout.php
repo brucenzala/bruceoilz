@@ -22,7 +22,13 @@ if (file_exists('db.php')) {
     $db   = getenv('DB_NAME') ?: getenv('MYSQLDATABASE') ?: 'bruceoilz';
     $port = getenv('DB_PORT') ?: getenv('MYSQLPORT') ?: 3306;
 
-    $conn = @mysqli_connect($host, $user, $pass, $db, (int)$port);
+    // Connect without '@' suppressor to capture connection errors
+    $conn = mysqli_connect($host, $user, $pass, $db, (int)$port);
+    
+    // Debug output if connection fails
+    if (!$conn) {
+        $db_error_details = mysqli_connect_error();
+    }
 }
 
 // Compute totals from session cart
@@ -101,18 +107,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     unset($_SESSION['cart']);
                     $order_success = true;
                 } else {
-                    $error_msg = "Database error: Could not save order. Ensure your 'orders' table has all required columns.";
+                    $error_msg = "Database error: " . mysqli_error($conn);
                 }
             } else {
-                $error_msg = "Failed to prepare order query.";
+                $error_msg = "Failed to prepare order query: " . mysqli_error($conn);
             }
         } else {
-            $error_msg = "Database connection failed.";
+            $details = isset($db_error_details) ? " Details: " . $db_error_details : "";
+            $error_msg = "Database connection failed." . $details;
         }
     }
 }
 
-if ($conn) {
+if (isset($conn) && $conn) {
     mysqli_close($conn);
 }
 ?>
@@ -160,7 +167,7 @@ if ($conn) {
     }
     .btn-whatsapp:hover { background-color: #1ebc57; }
 
-    .error-box { background: #fce4e4; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
+    .error-box { background: #fce4e4; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px; word-wrap: break-word; }
     .success-card { text-align: center; padding: 40px 20px; }
     .success-icon { font-size: 50px; color: #2c5e1a; margin-bottom: 15px; }
 
