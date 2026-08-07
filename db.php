@@ -7,7 +7,7 @@ $port = getenv('DB_PORT') ?: 3306;
 
 $conn = mysqli_init();
 
-// Enable SSL if running on production / TiDB Cloud
+// Enable SSL connection for production / TiDB Cloud
 if (getenv('DB_SSL') === 'true' || getenv('DB_HOST')) {
     mysqli_ssl_set($conn, NULL, NULL, NULL, NULL, NULL);
     @mysqli_real_connect($conn, $host, $user, $pass, $db, (int)$port, NULL, MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT);
@@ -15,9 +15,8 @@ if (getenv('DB_SSL') === 'true' || getenv('DB_HOST')) {
     @mysqli_real_connect($conn, $host, $user, $pass, $db, (int)$port);
 }
 
-// Check connection without echoing text
+// Set connection to false if it failed so pages can handle fallbacks cleanly
 if (!$conn || mysqli_connect_errno()) {
-    // Suppress fatal crash and allow scripts to fall back gracefully if DB fails
     $conn = false;
 }
 ?>
