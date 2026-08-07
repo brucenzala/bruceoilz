@@ -11,13 +11,19 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = array();
 }
 
-// Database Connection
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db   = 'bruceoilz';
+// 2. DATABASE CONNECTION
+// Prefer centralized db.php if available; otherwise fallback to environment/local connection
+if (file_exists('db.php')) {
+    require_once 'db.php';
+} else {
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $user = getenv('DB_USER') ?: 'root';
+    $pass = getenv('DB_PASS') ?: '';
+    $db   = getenv('DB_NAME') ?: 'bruceoilz';
+    $port = getenv('DB_PORT') ?: 3306;
 
-$conn = @mysqli_connect($host, $user, $pass, $db);
+    $conn = @mysqli_connect($host, $user, $pass, $db, (int)$port);
+}
 
 // Fallback products array if database lookup fails
 $default_products = [
@@ -26,14 +32,14 @@ $default_products = [
     3 => ['id' => 3, 'name' => 'Clove Oil',   'price' => 100.00, 'image' => 'image/clove oil.jpg']
 ];
 
-// 2. HANDLE ADD TO CART VIA POST FORM (from product.php / product details)
+// 3. HANDLE ADD TO CART VIA POST FORM (from product.php / product details)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
     $product_id = (int)$_POST['product_id'];
     $quantity   = isset($_POST['quantity']) ? max(1, (int)$_POST['quantity']) : 1;
 
     $product_info = null;
 
-    if ($conn) {
+    if (isset($conn) && $conn) {
         $stmt = mysqli_prepare($conn, "SELECT id, name, price, image FROM products WHERE id = ? LIMIT 1");
         if ($stmt) {
             mysqli_stmt_bind_param($stmt, "i", $product_id);
@@ -69,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
     exit();
 }
 
-// 3. HANDLE CART ACTIONS VIA GET (+, -, remove, clear)
+// 4. HANDLE CART ACTIONS VIA GET (+, -, remove, clear)
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -104,7 +110,7 @@ if (isset($_GET['action'])) {
     exit();
 }
 
-// 4. PREPARE DISPLAY DATA AND SYNC SESSION FOR CHECKOUT
+// 5. PREPARE DISPLAY DATA AND SYNC SESSION FOR CHECKOUT
 $cart_items = array();
 $total_price = 0;
 
@@ -115,7 +121,7 @@ if (!empty($_SESSION['cart'])) {
 
         $product_info = null;
 
-        if ($conn) {
+        if (isset($conn) && $conn) {
             $res = mysqli_query($conn, "SELECT id, name, price, image FROM products WHERE id = $pid LIMIT 1");
             if ($res && $row = mysqli_fetch_assoc($res)) {
                 $product_info = $row;
@@ -153,7 +159,7 @@ if (!empty($_SESSION['cart'])) {
     }
 }
 
-if ($conn) {
+if (isset($conn) && $conn) {
     mysqli_close($conn);
 }
 ?>
