@@ -1,23 +1,18 @@
 <?php
-$host = 'gateway01.eu-central-1.prod.aws.tidbcloud.com';
-$user = '2BTCsXYJuxUsUkn.root';
-$pass = 'LiWZyAILrVsjB3pw';
-$dbname = 'Bruceoilz'; // or 'sys'
-$port = 4000;
+$host = getenv('DB_HOST') ?: 'gateway01.us-east-1.prod.aws.tidbcloud.com';
+$user = getenv('DB_USER') ?: '...';
+$pass = getenv('DB_PASS') ?: '...';
+$db   = getenv('DB_NAME') ?: 'bruceoilz';
+$port = getenv('DB_PORT') ?: 4000;
 
 $conn = mysqli_init();
-
-if (!$conn) {
-    die("mysqli_init failed");
+if (getenv('DB_SSL') === 'true') {
+    mysqli_ssl_set($conn, NULL, NULL, NULL, NULL, NULL);
 }
 
-// Enable SSL mode for TiDB Cloud
-$conn->ssl_set(NULL, NULL, NULL, NULL, NULL);
-
-// Connect with SSL flag (MYSQLI_CLIENT_SSL)
-if (!$conn->real_connect($host, $user, $pass, $dbname, $port, NULL, MYSQLI_CLIENT_SSL)) {
-    die("Connection failed: " . mysqli_connect_error());
+if (!@mysqli_real_connect($conn, $host, $user, $pass, $db, (int)$port, NULL, MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT)) {
+    die("Database Connection Error: " . mysqli_connect_error());
 }
 
-echo "Connected successfully to TiDB!";
+// DO NOT ECHO ANYTHING HERE!
 ?>
