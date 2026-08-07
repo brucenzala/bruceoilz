@@ -1,8 +1,18 @@
 <?php
 session_start();
 
-// Connect to the bruceoilz database
-$conn = @mysqli_connect("localhost", "root", "", "bruceoilz");
+// Database Connection
+if (file_exists('db.php')) {
+    require_once 'db.php';
+} else {
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $user = getenv('DB_USER') ?: 'root';
+    $pass = getenv('DB_PASS') ?: '';
+    $db   = getenv('DB_NAME') ?: 'bruceoilz';
+    $port = getenv('DB_PORT') ?: 3306;
+
+    $conn = @mysqli_connect($host, $user, $pass, $db, (int)$port);
+}
 
 $error_msg = "";
 $success_msg = "";
