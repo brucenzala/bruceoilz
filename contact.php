@@ -1,18 +1,29 @@
 <?php
 session_start();
 
-$conn = @mysqli_connect("localhost", "root", "", "bruceoilz");
+// Database Connection
+if (file_exists('db.php')) {
+    require_once 'db.php';
+} else {
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $user = getenv('DB_USER') ?: 'root';
+    $pass = getenv('DB_PASS') ?: '';
+    $db   = getenv('DB_NAME') ?: 'bruceoilz';
+    $port = getenv('DB_PORT') ?: 3306;
+
+    $conn = @mysqli_connect($host, $user, $pass, $db, (int)$port);
+}
 
 $message_sent = false;
 $error_msg = "";
 
 // Handle form submission and save message to database
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_message'])) {
-    $name = mysqli_real_escape_string($conn, $_POST['name']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $message = mysqli_real_escape_string($conn, $_POST['message']);
+    $name = isset($conn) && $conn ? mysqli_real_escape_string($conn, $_POST['name']) : htmlspecialchars($_POST['name']);
+    $email = isset($conn) && $conn ? mysqli_real_escape_string($conn, $_POST['email']) : htmlspecialchars($_POST['email']);
+    $message = isset($conn) && $conn ? mysqli_real_escape_string($conn, $_POST['message']) : htmlspecialchars($_POST['message']);
 
-    if ($conn) {
+    if (isset($conn) && $conn) {
         $sql = "INSERT INTO contact_messages (name, email, message) VALUES ('$name', '$email', '$message')";
         if (mysqli_query($conn, $sql)) {
             $message_sent = true;
@@ -25,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_message'])) {
     }
 }
 
-if ($conn) {
+if (isset($conn) && $conn) {
     mysqli_close($conn);
 }
 ?>
@@ -142,7 +153,7 @@ if ($conn) {
     <div class="about-image">📬</div>
     <div class="about-text">
       <p class="section-label">CONTACT DETAILS</p>
-      <h2>Reach Us Directly</h2>
+      2>Reach Us Directly</h2>
       <p>
         <strong>Email:</strong> <a href="mailto:hello@bruceoilz.com">hello@bruceoilz.com</a><br>
         <strong>Phone:</strong> <a href="tel:+260777392580">+260777392580</a><br>
