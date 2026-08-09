@@ -263,7 +263,7 @@ $products_to_display = !empty($db_products) ? $db_products : $default_products;
   <!-- PRODUCTS -->
   <div class="products-page">
     <p class="section-label" style="text-align:center;">HANDCRAFTED COLLECTION</p>
-    2All Products</h2>
+    <h2>All Products</h2>
     <p class="section-sub">100% natural herbal oils for your hair, skin, and wellbeing</p>
 
     <?php foreach ($products_to_display as $product): ?>
