@@ -1,0 +1,9 @@
+﻿RewriteEngine On
+
+# Redirect old .html links to their .php equivalents (301 = permanent)
+RewriteRule ^index\.html$ /index.php [L,R=301]
+RewriteRule ^about\.html$ /about.php [L,R=301]
+RewriteRule ^product\.html$ /product.php [L,R=301]
+RewriteRule ^contact\.html$ /contact.php [L,R=301]
+RewriteRule ^cart\.html$ /cart.php [L,R=301]
+RewriteRule ^login\.html$ /login.php [L,R=301]

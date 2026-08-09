@@ -1,4 +1,3 @@
-@'
 <?php
 $host = getenv('DB_HOST') ?: 'localhost';
 $user = getenv('DB_USER') ?: 'root';
@@ -22,4 +21,3 @@ if (!$conn || mysqli_connect_errno()) {
     $db_error_details = mysqli_connect_error();
     $conn = false;
 }
-'@ | Out-File -FilePath db.php -Encoding utf8NoBOM -NoNewline
