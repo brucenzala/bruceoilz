@@ -173,10 +173,9 @@ if (isset($conn) && $conn) {
       <p class="section-label">CONTACT DETAILS</p>
       <h2>Reach Us Directly</h2>
       <p>
-        <strong>Email:</strong> <a href="mailto:hello@bruceoilz.com">hello@bruceoilz.com</a><br>
+        <strong>Email:</strong> <a href="mailto:bruceoilz@gmail.com">bruceoilz@gmail.com</a><br>
         <strong>Phone:</strong> <a href="tel:+260777392580">+260777392580</a><br>
-        <strong>Location:</strong> Lusaka, Zambia<br>
-        <strong>Instagram:</strong> <a href="https://instagram.com/bruceoilz" target="_blank" rel="noopener">@bruceoilz</a>
+        <strong>Location:</strong> Lusaka, Zambia
       </p>
       <p>We usually respond within 24 hours. For order-related questions, please include your order number.</p>
     </div>
@@ -203,20 +202,6 @@ if (isset($conn) && $conn) {
       <textarea name="message" placeholder="Your message" rows="5" required></textarea>
       <button type="submit" name="submit_message">Send Message</button>
     </form>
-  </section>
-
-  <!-- CONTACT CARD IMAGE -->
-  <section class="products">
-    <p class="section-label">QUICK REFERENCE</p>
-    <h2>Save Our Contact Card</h2>
-    <div style="display:flex; justify-content:center; margin-top:30px;">
-      <figure style="max-width:400px; text-align:center;">
-        <img src="image/Brown and White Minimalist Company Contact Us Information Instagram Story.png"
-             alt="BruceOilz contact information card with email, phone, and social details"
-             style="width:100%; border-radius:8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);"
-             onerror="this.style.display='none'">
-      </figure>
-    </div>
   </section>
 
   <!-- FOOTER -->
