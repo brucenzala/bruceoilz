@@ -24,7 +24,7 @@ if (file_exists('db.php')) {
 
     // Connect without '@' suppressor to capture connection errors
     $conn = mysqli_connect($host, $user, $pass, $db, (int)$port);
-    
+
     // Debug output if connection fails
     if (!$conn) {
         $db_error_details = mysqli_connect_error();
@@ -152,13 +152,13 @@ if (isset($conn) && $conn) {
     .order-summary-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
     .order-summary-table td { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.95rem; }
     .summary-total { font-weight: bold; font-size: 1.2rem; color: #2c5e1a; display: flex; justify-content: space-between; padding-top: 15px; border-top: 2px solid #2c5e1a; }
-    
+
     .btn-place-order {
       width: 100%; background-color: #2c5e1a; color: white; padding: 14px; border: none; border-radius: 6px;
       font-weight: bold; font-size: 1rem; cursor: pointer; transition: background 0.2s;
     }
     .btn-place-order:hover { background-color: #224a14; }
-    
+
     .btn-whatsapp {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
       background-color: #25D366; color: white; padding: 14px 28px; border-radius: 6px;
@@ -191,15 +191,15 @@ if (isset($conn) && $conn) {
         <a href="cart.php">Cart</a>
         <a href="login.php">Login</a>
       </div>
-      <div class="hamburger" id="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="hamburger" id="hamburger">☰</div>
     </nav>
-    <div class="mobile-menu" id="mobileMenu">
-      <a href="index.php" onclick="toggleMenu()">Home</a>
-      <a href="about.php" onclick="toggleMenu()">About</a>
-      <a href="product.php" onclick="toggleMenu()">Products</a>
-      <a href="contact.php" onclick="toggleMenu()">Contact</a>
-      <a href="cart.php" onclick="toggleMenu()">Cart</a>
-      <a href="login.php" onclick="toggleMenu()">Login / Account</a>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="index.php">Home</a>
+      <a href="about.php">About</a>
+      <a href="product.php">Products</a>
+      <a href="contact.php">Contact</a>
+      <a href="cart.php">Cart</a>
+      <a href="login.php">Login / Account</a>
     </div>
   </header>
 
@@ -222,14 +222,22 @@ if (isset($conn) && $conn) {
         </p>
 
         <!-- WHATSAPP DIRECT ACTION BUTTON -->
-        <a href="<?php echo $whatsapp_url; ?>" target="_blank" class="btn-whatsapp">
+        <a href="<?php echo $whatsapp_url; ?>" target="_blank" class="btn-whatsapp" id="whatsappLink">
           📲 Send Order to WhatsApp
         </a>
+        <p style="color: #888; font-size: 0.9rem; margin-top: 12px;">Redirecting you to WhatsApp automatically&hellip;</p>
 
         <div style="margin-top: 30px;">
           <a href="product.php" style="color: #2c5e1a; font-weight: bold; text-decoration: underline;">Return to Products</a>
         </div>
       </div>
+
+      <script>
+        // Auto-forward to WhatsApp shortly after the order confirms
+        setTimeout(function () {
+          window.location.href = <?php echo json_encode($whatsapp_url); ?>;
+        }, 1800);
+      </script>
     <?php else: ?>
 
       <?php if (!empty($error_msg)): ?>
@@ -240,7 +248,7 @@ if (isset($conn) && $conn) {
         <!-- Delivery Details -->
         <div class="checkout-card">
           <h2 style="margin-bottom: 20px; color: #2c5e1a;">Shipping & Contact Information</h2>
-          
+
           <div class="form-group">
             <label for="full_name">Full Name *</label>
             <input type="text" id="full_name" name="full_name" required placeholder="e.g., Bruce Nzala">
@@ -283,7 +291,7 @@ if (isset($conn) && $conn) {
           <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Order Summary</h3>
           <table class="order-summary-table">
             <tbody>
-              <?php foreach ($cart_items as $item): 
+              <?php foreach ($cart_items as $item):
                 $name  = $item['name'] ?? 'Herbal Oil';
                 $price = (float)($item['price'] ?? 0);
                 $qty   = (int)($item['quantity'] ?? 1);
@@ -335,12 +343,6 @@ if (isset($conn) && $conn) {
       <p>© 2026 BruceOilz. All rights reserved. | Made with 💚 in Zambia</p>
     </div>
   </footer>
-
-  <script>
-    function toggleMenu() {
-      document.getElementById('mobileMenu').classList.toggle('open');
-    }
-  </script>
 
 </body>
 </html>
