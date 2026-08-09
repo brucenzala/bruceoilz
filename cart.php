@@ -295,15 +295,15 @@ if (isset($conn) && $conn) {
         <a href="cart.php" class="active">Cart</a>
         <a href="login.php">Login</a>
       </div>
-      <div class="hamburger" id="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="hamburger" id="hamburger">☰</div>
     </nav>
-    <div class="mobile-menu" id="mobileMenu">
-      <a href="index.php" onclick="toggleMenu()">Home</a>
-      <a href="about.php" onclick="toggleMenu()">About</a>
-      <a href="product.php" onclick="toggleMenu()">Products</a>
-      <a href="contact.php" onclick="toggleMenu()">Contact</a>
-      <a href="cart.php" onclick="toggleMenu()">Cart</a>
-      <a href="login.php" onclick="toggleMenu()">Login / Account</a>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="index.php">Home</a>
+      <a href="about.php">About</a>
+      <a href="product.php">Products</a>
+      <a href="contact.php">Contact</a>
+      <a href="cart.php">Cart</a>
+      <a href="login.php">Login / Account</a>
     </div>
   </header>
 
@@ -397,12 +397,6 @@ if (isset($conn) && $conn) {
       <p>© 2026 BruceOilz. All rights reserved. | Made with 💚 in Zambia</p>
     </div>
   </footer>
-
-  <script>
-    function toggleMenu() {
-      document.getElementById('mobileMenu').classList.toggle('open');
-    }
-  </script>
 
 </body>
 </html>
