@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Us — BruceOilz</title>
   <link rel="stylesheet" href="style.css">
+  <script src="js/javascript.js" defer></script>
   <style>
     .page-banner {
       background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
@@ -89,25 +90,27 @@
   <!-- NAVBAR -->
   <header>
     <nav class="navbar">
-      <a href="index.html" class="logo">
+      <a href="index.php" class="logo">
         <img src="image/logo.jpg" alt="BruceOilz Logo" style="height: 40px; vertical-align: middle; margin-right: 8px; border-radius: 4px;" onerror="this.style.display='none'">
         BruceOilz
       </a>
       <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="about.html" class="active">About</a>
-        <a href="product.html">Products</a>
-        <a href="contact.html">Contact</a>
-        <a href="cart.html">Cart</a>
+        <a href="index.php">Home</a>
+        <a href="about.php" class="active">About</a>
+        <a href="product.php">Products</a>
+        <a href="contact.php">Contact</a>
+        <a href="cart.php">Cart</a>
+        <a href="login.php">Login</a>
       </div>
-      <div class="hamburger" id="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="hamburger" id="hamburger">☰</div>
     </nav>
-    <div class="mobile-menu" id="mobileMenu">
-      <a href="index.html" onclick="toggleMenu()">Home</a>
-      <a href="about.html" onclick="toggleMenu()">About</a>
-      <a href="product.html" onclick="toggleMenu()">Products</a>
-      <a href="contact.html" onclick="toggleMenu()">Contact</a>
-      <a href="cart.html" onclick="toggleMenu()">Cart</a>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="index.php">Home</a>
+      <a href="about.php">About</a>
+      <a href="product.php">Products</a>
+      <a href="contact.php">Contact</a>
+      <a href="cart.php">Cart</a>
+      <a href="login.php">Login / Account</a>
     </div>
   </header>
 
@@ -145,7 +148,7 @@
     </div>
 
     <div class="actions-wrapper">
-      <a href="product.html" class="back-home-btn">Explore Our Collection →</a>
+      <a href="product.php" class="back-home-btn">Explore Our Collection →</a>
     </div>
   </main>
 
@@ -158,29 +161,23 @@
       </div>
       <div class="footer-links">
         <h4>Quick Links</h4>
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="product.html">Products</a>
-        <a href="contact.html">Contact</a>
-        <a href="cart.html">Cart</a>
+        <a href="index.php">Home</a>
+        <a href="about.php">About</a>
+        <a href="product.php">Products</a>
+        <a href="contact.php">Contact</a>
+        <a href="cart.php">Cart</a>
       </div>
       <div class="footer-links">
         <h4>Products</h4>
-        <a href="product.html">Comfrey Oil</a>
-        <a href="product.html">Neem Oil</a>
-        <a href="product.html">Clove Oil</a>
+        <a href="product.php">Comfrey Oil</a>
+        <a href="product.php">Neem Oil</a>
+        <a href="product.php">Clove Oil</a>
       </div>
     </div>
     <div class="footer-bottom">
       <p>© 2026 BruceOilz. All rights reserved. | Made with 💚 in Zambia</p>
     </div>
   </footer>
-
-  <script>
-    function toggleMenu() {
-      document.getElementById('mobileMenu').classList.toggle('open');
-    }
-  </script>
 
 </body>
 </html>
