@@ -24,25 +24,27 @@ if (isset($_SESSION['user_id'])) {
 
 // Handle User Registration
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'register') {
-    $name = trim($_POST['reg_name']);
-    $email = trim($_POST['reg_email']);
-    $password = $_POST['reg_password'];
+    $name     = trim($_POST['reg_name'] ?? '');
+    $email    = trim($_POST['reg_email'] ?? '');
+    $password = $_POST['reg_password'] ?? '';
 
-    if ($conn) {
-        $clean_email = mysqli_real_escape_string($conn, $email);
-        $clean_name = mysqli_real_escape_string($conn, $name);
-        
+    if (empty($name) || empty($email) || empty($password)) {
+        $error_msg = "Please fill in all fields.";
+    } elseif (isset($conn) && $conn) {
         // Check if user already exists
-        $check_sql = "SELECT id FROM users WHERE email = '$clean_email'";
-        $check_res = mysqli_query($conn, $check_sql);
+        $check_stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE email = ?");
+        mysqli_stmt_bind_param($check_stmt, "s", $email);
+        mysqli_stmt_execute($check_stmt);
+        $check_result = mysqli_stmt_get_result($check_stmt);
 
-        if ($check_res && mysqli_num_rows($check_res) > 0) {
+        if ($check_result && mysqli_num_rows($check_result) > 0) {
             $error_msg = "An account with this email already exists.";
         } else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $insert_sql = "INSERT INTO users (full_name, email, password) VALUES ('$clean_name', '$clean_email', '$hashed_password')";
-            
-            if (mysqli_query($conn, $insert_sql)) {
+            $insert_stmt = mysqli_prepare($conn, "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)");
+            mysqli_stmt_bind_param($insert_stmt, "sss", $name, $email, $hashed_password);
+
+            if (mysqli_stmt_execute($insert_stmt)) {
                 $_SESSION['user_id'] = mysqli_insert_id($conn);
                 $_SESSION['user_name'] = $name;
                 $_SESSION['user_email'] = $email;
@@ -52,25 +54,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             } else {
                 $error_msg = "Error creating account. Please try again.";
             }
+            mysqli_stmt_close($insert_stmt);
         }
+        mysqli_stmt_close($check_stmt);
     } else {
-        // Fallback for demonstration if database is disconnected
-        $_SESSION['user_name'] = $name;
-        $_SESSION['user_email'] = $email;
-        header("Location: cart.php");
-        exit();
+        $error_msg = "We couldn't connect to our servers right now. Please try again shortly.";
     }
 }
 
 // Handle User Login
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
-    $email = trim($_POST['login_email']);
-    $password = $_POST['login_password'];
+    $email    = trim($_POST['login_email'] ?? '');
+    $password = $_POST['login_password'] ?? '';
 
-    if ($conn) {
-        $clean_email = mysqli_real_escape_string($conn, $email);
-        $sql = "SELECT * FROM users WHERE email = '$clean_email'";
-        $result = mysqli_query($conn, $sql);
+    if (empty($email) || empty($password)) {
+        $error_msg = "Please enter your email and password.";
+    } elseif (isset($conn) && $conn) {
+        $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE email = ?");
+        mysqli_stmt_bind_param($stmt, "s", $email);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
 
         if ($result && mysqli_num_rows($result) > 0) {
             $user = mysqli_fetch_assoc($result);
@@ -87,22 +90,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         } else {
             $error_msg = "No account found with that email address.";
         }
+        mysqli_stmt_close($stmt);
     } else {
-        // Fallback demo login
-        $_SESSION['user_email'] = $email;
-        $_SESSION['user_name'] = explode('@', $email)[0];
-        header("Location: cart.php");
-        exit();
+        $error_msg = "We couldn't connect to our servers right now. Please try again shortly.";
     }
 }
 
 // Handle Password Reset Request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reset') {
-    $reset_email = trim($_POST['reset_email']);
-    $success_msg = "A password reset link has been sent to " . htmlspecialchars($reset_email) . ".";
+    // Email sending isn't wired up yet, so be honest instead of claiming success
+    $error_msg = "Password reset by email isn't available yet. Please contact us directly at hello@bruceoilz.com or WhatsApp +260777392580 and we'll help you regain access.";
 }
 
-if ($conn) {
+if (isset($conn) && $conn) {
     mysqli_close($conn);
 }
 ?>
@@ -297,15 +297,15 @@ if ($conn) {
         <a href="cart.php">Cart</a>
         <a href="login.php" class="active">Login</a>
       </div>
-      <div class="hamburger" id="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="hamburger" id="hamburger">☰</div>
     </nav>
-    <div class="mobile-menu" id="mobileMenu">
-      <a href="index.php" onclick="toggleMenu()">Home</a>
-      <a href="about.php" onclick="toggleMenu()">About</a>
-      <a href="product.php" onclick="toggleMenu()">Products</a>
-      <a href="contact.php" onclick="toggleMenu()">Contact</a>
-      <a href="cart.php" onclick="toggleMenu()">Cart</a>
-      <a href="login.php" onclick="toggleMenu()">Login / Account</a>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="index.php">Home</a>
+      <a href="about.php">About</a>
+      <a href="product.php">Products</a>
+      <a href="contact.php">Contact</a>
+      <a href="cart.php">Cart</a>
+      <a href="login.php">Login / Account</a>
     </div>
   </header>
 
@@ -378,7 +378,7 @@ if ($conn) {
     <div class="modal-card">
       <button class="close-modal-btn" onclick="closeResetModal()">Close</button>
       <h2>Reset Password</h2>
-      <p style="font-size: 14px; color: #666; margin-bottom: 16px;">Enter your email address and we'll send you a link to reset your password.</p>
+      <p style="font-size: 14px; color: #666; margin-bottom: 16px;">Password reset by email isn't set up yet. Enter your email and submit, and we'll follow up manually to help you regain access.</p>
       
       <form action="login.php" method="POST" class="auth-form">
         <input type="hidden" name="action" value="reset">
@@ -419,10 +419,6 @@ if ($conn) {
   </footer>
 
   <script>
-    function toggleMenu() {
-      document.getElementById('mobileMenu').classList.toggle('open');
-    }
-
     function switchTab(tab) {
       const loginForm = document.getElementById('loginForm');
       const registerForm = document.getElementById('registerForm');
