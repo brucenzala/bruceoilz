@@ -1,4 +1,4 @@
-﻿RewriteEngine On
+RewriteEngine On
 
 # Redirect old .html links to their .php equivalents (301 = permanent)
 RewriteRule ^index\.html$ /index.php [L,R=301]
