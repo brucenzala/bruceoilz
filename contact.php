@@ -19,20 +19,27 @@ $error_msg = "";
 
 // Handle form submission and save message to database
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_message'])) {
-    $name = isset($conn) && $conn ? mysqli_real_escape_string($conn, $_POST['name']) : htmlspecialchars($_POST['name']);
-    $email = isset($conn) && $conn ? mysqli_real_escape_string($conn, $_POST['email']) : htmlspecialchars($_POST['email']);
-    $message = isset($conn) && $conn ? mysqli_real_escape_string($conn, $_POST['message']) : htmlspecialchars($_POST['message']);
+    $name    = trim($_POST['name'] ?? '');
+    $email   = trim($_POST['email'] ?? '');
+    $message = trim($_POST['message'] ?? '');
 
-    if (isset($conn) && $conn) {
-        $sql = "INSERT INTO contact_messages (name, email, message) VALUES ('$name', '$email', '$message')";
-        if (mysqli_query($conn, $sql)) {
-            $message_sent = true;
+    if (empty($name) || empty($email) || empty($message)) {
+        $error_msg = "Please fill in all fields.";
+    } elseif (isset($conn) && $conn) {
+        $stmt = mysqli_prepare($conn, "INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)");
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "sss", $name, $email, $message);
+            if (mysqli_stmt_execute($stmt)) {
+                $message_sent = true;
+            } else {
+                $error_msg = "Sorry, something went wrong saving your message. Please try again or email us directly.";
+            }
+            mysqli_stmt_close($stmt);
         } else {
-            // Fallback if contact_messages table doesn't exist yet
-            $message_sent = true; 
+            $error_msg = "Sorry, something went wrong saving your message. Please try again or email us directly.";
         }
     } else {
-        $message_sent = true; // Graceful fallback
+        $error_msg = "Sorry, we couldn't connect right now. Please email us directly instead.";
     }
 }
 
@@ -106,6 +113,17 @@ if (isset($conn) && $conn) {
       border: 1px solid #c3e6cb;
       font-weight: bold;
     }
+    .alert-error {
+      background-color: #fce4e4;
+      color: #721c24;
+      padding: 15px 20px;
+      border-radius: 6px;
+      max-width: 500px;
+      margin: 0 auto 20px auto;
+      text-align: center;
+      border: 1px solid #f5c6cb;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -125,17 +143,17 @@ if (isset($conn) && $conn) {
         <a href="cart.php">Cart</a>
         <a href="login.php">Login</a>
       </div>
-      <div class="hamburger" id="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="hamburger" id="hamburger">☰</div>
     </nav>
 
     <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-      <a href="index.php" onclick="toggleMenu()">Home</a>
-      <a href="about.php" onclick="toggleMenu()">About</a>
-      <a href="product.php" onclick="toggleMenu()">Products</a>
-      <a href="contact.php" onclick="toggleMenu()">Contact</a>
-      <a href="cart.php" onclick="toggleMenu()">Cart</a>
-      <a href="login.php" onclick="toggleMenu()">Login / Account</a>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="index.php">Home</a>
+      <a href="about.php">About</a>
+      <a href="product.php">Products</a>
+      <a href="contact.php">Contact</a>
+      <a href="cart.php">Cart</a>
+      <a href="login.php">Login / Account</a>
     </div>
   </header>
 
@@ -153,7 +171,7 @@ if (isset($conn) && $conn) {
     <div class="about-image">📬</div>
     <div class="about-text">
       <p class="section-label">CONTACT DETAILS</p>
-      2>Reach Us Directly</h2>
+      <h2>Reach Us Directly</h2>
       <p>
         <strong>Email:</strong> <a href="mailto:hello@bruceoilz.com">hello@bruceoilz.com</a><br>
         <strong>Phone:</strong> <a href="tel:+260777392580">+260777392580</a><br>
@@ -172,6 +190,10 @@ if (isset($conn) && $conn) {
     <?php if ($message_sent): ?>
         <div class="alert-success">
             ✅ Thank you! Your message has been received. We will get back to you shortly.
+        </div>
+    <?php elseif (!empty($error_msg)): ?>
+        <div class="alert-error">
+            <?php echo htmlspecialchars($error_msg); ?>
         </div>
     <?php endif; ?>
 
@@ -224,13 +246,6 @@ if (isset($conn) && $conn) {
       <p>© 2026 BruceOilz. All rights reserved. | Made with 💚 in Zambia</p>
     </div>
   </footer>
-
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById('mobileMenu');
-      menu.classList.toggle('open');
-    }
-  </script>
 
 </body>
 </html>
