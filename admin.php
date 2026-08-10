@@ -5,9 +5,6 @@ session_start();
 // Generate a hash locally with: php -r "echo password_hash('yourpassword', PASSWORD_DEFAULT);"
 // Then set ADMIN_PASSWORD_HASH in Render's Environment tab to that output.
 $admin_password_hash = getenv('ADMIN_PASSWORD_HASH');
-$admin_password_hash = getenv('ADMIN_PASSWORD_HASH');
-echo "DEBUG: [" . $admin_password_hash . "]";
-exit();
 
 if (isset($_POST['login'])) {
     if ($admin_password_hash && password_verify($_POST['password'], $admin_password_hash)) {
