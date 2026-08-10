@@ -1,11 +1,13 @@
 <?php
 session_start();
 
-// Simple admin authentication (Change password as needed)
-$admin_password = "adminpassword123"; 
+// Admin password is stored as a bcrypt hash in an environment variable, never in source code.
+// Generate a hash locally with: php -r "echo password_hash('yourpassword', PASSWORD_DEFAULT);"
+// Then set ADMIN_PASSWORD_HASH in Render's Environment tab to that output.
+$admin_password_hash = getenv('ADMIN_PASSWORD_HASH');
 
 if (isset($_POST['login'])) {
-    if ($_POST['password'] === $admin_password) {
+    if ($admin_password_hash && password_verify($_POST['password'], $admin_password_hash)) {
         $_SESSION['admin_logged_in'] = true;
     } else {
         $login_error = "Incorrect password.";
@@ -18,10 +20,20 @@ if (isset($_GET['logout'])) {
     exit();
 }
 
-$conn = @mysqli_connect("localhost", "root", "", "bruceoilz");
+// Database Connection (uses the same centralized config as the rest of the site)
+if (file_exists('db.php')) {
+    require_once 'db.php';
+} else {
+    $conn = null;
+}
 
 $success_msg = "";
 $error_msg = "";
+
+if (!$admin_password_hash && isset($_SESSION['admin_logged_in'])) {
+    // Safety net: if the hash was never configured, don't allow a stale session to stay logged in
+    unset($_SESSION['admin_logged_in']);
+}
 
 // Handle Delete Product
 if (isset($_GET['delete_product']) && isset($_SESSION['admin_logged_in']) && $conn) {
@@ -171,14 +183,27 @@ if ($conn) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard — BruceOilz</title>
   <link rel="stylesheet" href="style.css">
+  <script src="js/javascript.js" defer></script>
   <style>
     body { background-color: #f8f9fa; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    .admin-header { background: #2c5e1a; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+    .admin-header { background: #2c5e1a; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: relative; }
     .admin-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
     .login-card { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
     .login-card input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
     .login-card button { width: 100%; background: #2c5e1a; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    
+
+    /* Admin header nav + mobile hamburger */
+    .admin-nav-links { display: flex; align-items: center; gap: 20px; }
+    .admin-nav-links a.view-site-link { color: white; text-decoration: underline; font-size: 0.9rem; }
+    .admin-header .hamburger { display: none; font-size: 26px; cursor: pointer; color: white; }
+    .admin-header .mobile-menu { display: none; flex-direction: column; position: absolute; top: 100%; right: 0; background: #2c5e1a; padding: 10px 20px 16px; gap: 12px; min-width: 180px; box-shadow: 0 8px 16px rgba(0,0,0,0.15); z-index: 10; }
+    .admin-header .mobile-menu.open { display: flex; }
+    .admin-header .mobile-menu a { color: white; text-decoration: none; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.95rem; }
+    @media (max-width: 700px) {
+      .admin-nav-links { display: none; }
+      .admin-header .hamburger { display: block; }
+    }
+
     /* Analytics Stats Grid */
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
     @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -255,8 +280,11 @@ if ($conn) {
   <div class="login-card">
     <h2 style="color: #2c5e1a; margin-bottom: 10px;">BruceOilz Admin</h2>
     <p style="color: #666; font-size: 0.9rem;">Enter your management password</p>
+    <?php if (!$admin_password_hash): ?>
+      <p style="color: #dc3545; font-size: 0.85rem; margin-top: 10px;">Admin login isn't configured yet. Set ADMIN_PASSWORD_HASH in your environment variables.</p>
+    <?php endif; ?>
     <?php if (isset($login_error)): ?>
-      <p style="color: #dc3545; font-size: 0.85rem; margin-top: 10px;"><?php echo $login_error; ?></p>
+      <p style="color: #dc3545; font-size: 0.85rem; margin-top: 10px;"><?php echo htmlspecialchars($login_error); ?></p>
     <?php endif; ?>
     <form action="admin.php" method="POST">
       <input type="password" name="password" placeholder="Password" required autofocus>
@@ -274,9 +302,14 @@ if ($conn) {
       <h1 style="margin: 0; font-size: 1.5rem;">BruceOilz Management Console</h1>
       <span style="font-size: 0.85rem; opacity: 0.8;">Signed in as Administrator</span>
     </div>
-    <div>
-      <a href="index.php" target="_blank" style="color: white; margin-right: 20px; text-decoration: underline; font-size: 0.9rem;">View Website</a>
+    <div class="admin-nav-links">
+      <a href="index.php" target="_blank" class="view-site-link">View Website</a>
       <a href="admin.php?logout=true" class="btn-logout">Log Out</a>
+    </div>
+    <div class="hamburger" id="hamburger">☰</div>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="index.php" target="_blank">View Website</a>
+      <a href="admin.php?logout=true">Log Out</a>
     </div>
   </div>
 
